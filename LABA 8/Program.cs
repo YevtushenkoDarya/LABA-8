@@ -1,50 +1,130 @@
 ﻿using System;
-using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 
-namespace anagrams
+namespace Labarotory
 {
-    public static class StringExtensions
+    public class Bills
     {
-        public static String Sort(this String input)
+        //  класс для хранения информации о  операциях
+        public long Date { get; set; }
+        public int sum = 0;
+        public string transaction { get; set; }
+    }
+    class CompareDate : IComparer
+    {
+        public int Compare(object obj1, object obj2)
         {
-            char[] chars = input.ToCharArray();
-            Array.Sort(chars);
-            return new String(chars);
+            var first = (Bills)obj1;
+            var second = (Bills)obj2;
+            return first.Date.CompareTo(second.Date);
         }
     }
-    public class Program
+    public class Programm
     {
-        static string DeleteDublicat(string str)
+        static string NameProject = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+        public static void Sorting(Array bills, IComparer comparer)
         {
-            StringBuilder sb = new StringBuilder();
-            str = str.ToUpper();
-            str = str.Sort();
-            for (int i = 1; i < str.Length; i++)
+            for (int i = bills.Length - 1; i > 0; i--)
+                for (int j = 1; j <= i; j++)
+                {
+                    object obj1 = bills.GetValue(j - 1);
+                    object obj2 = bills.GetValue(j);
+                    if (comparer.Compare(obj1, obj2) < 0)
+                    {
+                        object temporary = bills.GetValue(j);
+                        bills.SetValue(bills.GetValue(j - 1), j);
+                        bills.SetValue(temporary, j - 1);
+                    }
+                }
+        }
+        static string ChangeDate(string date)
+        {
+            date = date.Replace(":", "");
+            date = date.Replace("-", "");
+            date = date.Replace(" ", "");
+            return date;
+        }
+        static void PutDataToList(string line, List<Bills> bills)
+        {
+            /*Метод записывает информацию в bills*/
+            line = ChangeDate(line);
+            string[] lines = line.Split('|');
+            Bills bill = new Bills();
+            if (lines.Length == 3)
             {
-                if (str[i] != str[i - 1]) sb.Append(str[i]);
+                bill.Date = long.Parse(lines[0]);
+                bill.sum = int.Parse(lines[1]);
+                bill.transaction = lines[2];
             }
-            return sb.ToString();
+            else
+            {
+                // ветка созданна  revert
+                bill.Date = long.Parse(lines[0]);
+                bill.transaction = lines[1];
+            }
+            bills.Add(bill);
+        }
+        public static string Count(string date, int sum, Bills[] bills)
+        {
+            bool firstTime = false;
+            /*Создаём флаг firstTime который позволяет нам отслеживать было ли встреченно 
+                 время введенное пользователем, если да, то флаг ползволяет на реализовать выход 
+                 из цикла после встречи новго времени  */
+            int lastNumber = 0;
+            int length = bills.Length;
+            while (sum > 0)
+            {
+                // При сумме отрицательной цикл завершается и программа выводит сообщение об ошибке
+                if (bills[length - 1].Date == long.Parse(date)) firstTime = true;
+                else if (firstTime && bills[length - 1].Date != long.Parse(date)) break;
+                if (bills[length - 1].transaction == "in")
+                {
+                    sum += bills[length - 1].sum;
+                    lastNumber = bills[length - 1].sum;
+                }
+                if (bills[length - 1].transaction == "out")
+                {
+                    sum -= bills[length - 1].sum;
+                    lastNumber = bills[length - 1].sum * (-1);
+                }
+                if (bills[length - 1].transaction == "revert") sum -= lastNumber;
+                length--;
+            }
+            if (sum < 0) throw new ArgumentException("sum < 0");
+            else return "Итог :" + sum;
         }
         static void Main()
         {
-            string[] strings = {"code", "ecod", "framer", "doce", "frame"};
-            List<string> list = new List<string>();
-            list.Add(strings[0]);
-            for (int i = 1; i < strings.Length; i++)
+            Console.WriteLine("Введите дату используя разделите между ними :");
+            string dateOfCheck = Console.ReadLine();
+            dateOfCheck = ChangeDate(dateOfCheck);
+
+            List<Bills> bills = new List<Bills>();
+
+            int sum = 0;
+
+            string path = NameProject + "\\example2.txt";
+            foreach (string line in File.ReadLines(path))
             {
-                for (int j = 0; j < list.Count; j++)
+                if (sum == 0)
                 {
-                    if (DeleteDublicat(strings[i]) == DeleteDublicat(list[j]) && strings[i].Length == list[j].Length) break;
-                    else if (DeleteDublicat(strings[i]) == DeleteDublicat(list[j]))
-                    {
-                        list.Add(strings[i]);
-                    }
-                    else if(j==list.Count-1) list.Add(strings[i]); 
+                    /*В первой строке всегда храниться начальная сумма, из-за этого её нельзя передавать в метод*/
+                    sum = int.Parse(line);
+                    continue;
                 }
+                PutDataToList(line, bills);
             }
-            list.Sort();
-            foreach (string str in list)
-                Console.Write(str + " ");
+            Bills[] mass = new Bills[bills.Count];
+            for (int i = 0; i < bills.Count; i++)
+            {
+                mass[i] = new Bills();
+                mass[i] = bills[i];
+            }
+            Sorting(mass, new CompareDate());
+            Console.WriteLine(Count(dateOfCheck, sum, mass));
         }
     }
 }
