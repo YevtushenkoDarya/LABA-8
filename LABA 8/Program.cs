@@ -2,7 +2,7 @@
 
 namespace Laboratory
 {
-    public class Data
+    public class DataFromFile
     {
         // Создаём класс для хранения информации из файла
         public int firstTime { get; set; }
@@ -18,7 +18,7 @@ namespace Laboratory
         static int height = 50;
         static System.Timers.Timer aTimer;
         static int time = 0;
-        static List<Data> subtitles = new List<Data>();
+        static List<DataFromFile> subtitles = new List<DataFromFile>();
         static string path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
         private static void Timer()
         {
@@ -57,7 +57,7 @@ namespace Laboratory
             if (color == "White") Console.ForegroundColor = ConsoleColor.White;
             if (color == "Blue") Console.ForegroundColor = ConsoleColor.Blue;
         }
-        public static void WriteWord(Data subtitle)
+        public static void WriteWord(DataFromFile subtitle)
         {
             SetPosition(subtitle.position, subtitle.word.Length);
             Color(subtitle.color);
@@ -84,7 +84,7 @@ namespace Laboratory
                     break;
             }
         }
-        public static void DeleteWord(Data subtitle)
+        public static void DeleteWord(DataFromFile subtitle)
         {
             SetPosition(subtitle.position, subtitle.word.Length);
             for (int i = 0; i < subtitle.word.Length; i++)
@@ -95,7 +95,7 @@ namespace Laboratory
         public static void PutDataToList(string[] appartedData)
         {
             //Метод расскладывает информацию в class DataFromFile
-            Data dataFromFile = new Data();
+            DataFromFile dataFromFile = new DataFromFile();
             dataFromFile.firstTime = int.Parse(appartedData[0].Replace(":", "")) % 100;
             if (appartedData.Length == 2)
             {
