@@ -50,12 +50,23 @@ namespace Laboratory
             }
         }
         static void Color(string color)
-        {
+                                                                                                                                                                                                {
             if (color != null) color = color.Replace(" ", "");
             if (color == "Red") Console.ForegroundColor = ConsoleColor.Red;
             if (color == "Green") Console.ForegroundColor = ConsoleColor.Green;
             if (color == "White") Console.ForegroundColor = ConsoleColor.White;
             if (color == "Blue") Console.ForegroundColor = ConsoleColor.Blue;
+            if (color == "Yellow") Console.ForegroundColor = ConsoleColor.Yellow;
+            switch(color)
+            {
+                case "Red": Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case "Green":
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                default: Console.ForegroundColor = ConsoleColor.White;
+                    break;
+            }
         }
         public static void WriteWord(DataFromFile subtitle)
         {
@@ -128,6 +139,6 @@ namespace Laboratory
             Draw();
             Timer();
             Console.ReadKey();
-        }
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
     }
 }
